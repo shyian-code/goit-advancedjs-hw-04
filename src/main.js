@@ -1,8 +1,12 @@
 import axios from 'axios';
+import Notiflix from 'notiflix';
 
 // Отримуємо посилання на форму та галерею
 const searchForm = document.getElementById('search-form');
 const gallery = document.querySelector('.gallery');
+
+// Отримайте API ключ Pixabay та вставте його тут
+const apiKey = '10909963-d091288ea5fbb5ccebadc5240';
 
 // Додаємо обробник подачі форми
 searchForm.addEventListener('submit', async function (e) {
@@ -15,7 +19,7 @@ searchForm.addEventListener('submit', async function (e) {
   try {
     const response = await axios.get('https://pixabay.com/api/', {
       params: {
-        key: '10909963-d091288ea5fbb5ccebadc5240', // Замініть на свій ключ API
+        key: apiKey,
         q: searchQuery,
         image_type: 'photo',
         orientation: 'horizontal',
@@ -29,43 +33,49 @@ searchForm.addEventListener('submit', async function (e) {
 
     // Обробляємо отримані дані та додаємо картки зображень до галереї
     const images = response.data.hits;
-    images.forEach((image) => {
-      const card = document.createElement('div');
-      card.className = 'photo-card';
 
-      const img = document.createElement('img');
-      img.src = image.webformatURL;
-      img.alt = image.tags;
+    if (images.length === 0) {
+      Notiflix.Notify.failure('Sorry, there are no images matching your search query. Please try again.');
+    } else {
+      images.forEach((image) => {
+        const card = document.createElement('div');
+        card.className = 'photo-card';
 
-      const info = document.createElement('div');
-      info.className = 'info';
+        const img = document.createElement('img');
+        img.src = image.webformatURL;
+        img.alt = image.tags;
+        img.loading = 'lazy';
 
-      const likes = document.createElement('p');
-      likes.className = 'info-item';
-      likes.innerHTML = `<b>Likes:</b> ${image.likes}`;
+        const info = document.createElement('div');
+        info.className = 'info';
 
-      const views = document.createElement('p');
-      views.className = 'info-item';
-      views.innerHTML = `<b>Views:</b> ${image.views}`;
+        const likes = document.createElement('p');
+        likes.className = 'info-item';
+        likes.innerHTML = `<b>Likes:</b> ${image.likes}`;
 
-      const comments = document.createElement('p');
-      comments.className = 'info-item';
-      comments.innerHTML = `<b>Comments:</b> ${image.comments}`;
+        const views = document.createElement('p');
+        views.className = 'info-item';
+        views.innerHTML = `<b>Views:</b> ${image.views}`;
 
-      const downloads = document.createElement('p');
-      downloads.className = 'info-item';
-      downloads.innerHTML = `<b>Downloads:</b> ${image.downloads}`;
+        const comments = document.createElement('p');
+        comments.className = 'info-item';
+        comments.innerHTML = `<b>Comments:</b> ${image.comments}`;
 
-      info.appendChild(likes);
-      info.appendChild(views);
-      info.appendChild(comments);
-      info.appendChild(downloads);
+        const downloads = document.createElement('p');
+        downloads.className = 'info-item';
+        downloads.innerHTML = `<b>Downloads:</b> ${image.downloads}`;
 
-      card.appendChild(img);
-      card.appendChild(info);
+        info.appendChild(likes);
+        info.appendChild(views);
+        info.appendChild(comments);
+        info.appendChild(downloads);
 
-      gallery.appendChild(card);
-    });
+        card.appendChild(img);
+        card.appendChild(info);
+
+        gallery.appendChild(card);
+      });
+    }
   } catch (error) {
     console.error('Помилка запиту:', error);
   }
