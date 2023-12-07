@@ -43,6 +43,7 @@ searchForm.addEventListener('submit', async function (e) {
 
         const img = document.createElement('img');
         img.src = image.webformatURL;
+        img.className = "image";
         img.alt = image.tags;
         img.loading = 'lazy';
 
